@@ -1,0 +1,22 @@
+# Compiled programs
+thread1
+thread2
+thread_sum
+race
+mutex
+
+omp1
+omp_sum
+omp_race
+omp_critical
+omp_barrier
+
+sequential
+pthread_perf
+omp_perf
+
+# Object files
+*.o
+
+# Executables
+*.out
