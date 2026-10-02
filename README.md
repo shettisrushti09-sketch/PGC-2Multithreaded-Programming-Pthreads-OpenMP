@@ -84,3 +84,54 @@ PGC-2Multithreaded-Programming-Pthreads-OpenMP/
     ├── Pthreads/
     ├── OpenMP/
     └── Performance/
+
+## 📸 Screenshots
+
+### Part A – Pthreads
+
+#### Basic Thread Creation
+![Pthreads Thread 1](screenshots/Pthreads/thread1.png)
+
+#### Multiple Threads
+![Pthreads Thread 2](screenshots/Pthreads/thread2.png)
+
+#### Parallel Sum
+![Pthreads Sum](screenshots/Pthreads/thread_sum.png)
+
+#### Race Condition
+![Pthreads Race Condition](screenshots/Pthreads/race.png)
+
+#### Mutex Synchronization
+![Pthreads Mutex](screenshots/Pthreads/mutex.png)
+
+### Part B – OpenMP
+
+#### Basic OpenMP
+![OpenMP](screenshots/OpenMP/omp1.png)
+
+#### Parallel Sum
+![OpenMP Sum](screenshots/OpenMP/omp_sum.png)
+
+#### Race Condition
+![OpenMP Race Condition](screenshots/OpenMP/omp_race.png)
+
+#### Critical Section
+![OpenMP Critical](screenshots/OpenMP/omp_critical.png)
+
+#### Barrier Synchronization
+![OpenMP Barrier](screenshots/OpenMP/omp_barrier.png)
+
+### Part C – Performance
+
+#### Sequential Execution
+![Sequential Performance](screenshots/Performance/sequential.png)
+
+#### Pthreads Performance
+![Pthreads Performance](screenshots/Performance/pthread_performance.png)
+
+#### OpenMP Performance
+![OpenMP Performance](screenshots/Performance/openmp_performance.png)
+
+#### Performance Comparison
+![Performance Comparison](Part-C-Performance/results/performance-graph.png)
+
