@@ -1,585 +1,591 @@
-# Parallel & GPU Computing Lab
-## 4000 × 4000 Matrix Multiplication Performance Analysis
+Parallel Programming Using Pthreads and OpenMP
 
-## Table of Contents
+Project Overview
 
-- [Executive Summary](#executive-summary)
-- [Project Objectives](#project-objectives)
-- [Problem Definition](#problem-definition)
-- [Architectural Implementations](#architectural-implementations)
-  - [Sequential C](#1-sequential-c)
-  - [OpenMP](#2-openmp)
-  - [MPI](#3-mpi)
-  - [CUDA](#4-cuda)
-- [Experimental Configuration](#experimental-configuration)
-- [Performance Benchmarks](#performance-benchmarks)
-- [Performance Analysis](#performance-analysis)
-- [Visualizations](#visualizations)
-- [Source Code and Execution](#source-code-and-execution)
-- [Verification Results](#verification-results)
-- [Architecture Comparison](#architecture-comparison)
-- [Repository Structure](#repository-structure)
-- [Reproducibility](#reproducibility)
-- [Conclusion](#conclusion)
+This project demonstrates multithreaded and parallel programming using POSIX Threads (Pthreads) and OpenMP. It covers thread creation, parallel computation, race conditions, synchronization techniques, and performance comparison with sequential execution.
 
----
+The project is divided into three parts:
 
-# Executive Summary
+Part A — Pthreads
 
-This project evaluates the performance of 4000 × 4000 single-precision floating-point matrix multiplication across four computing paradigms:
+Part B — OpenMP
 
-1. **Sequential C** — baseline CPU implementation
-2. **OpenMP** — shared-memory parallel implementation using 8 CPU threads
-3. **MPI** — distributed-memory implementation using a 4-node cluster/VM configuration
-4. **CUDA** — GPU-accelerated implementation using an NVIDIA RTX GPU
+Part C — Performance Comparison
 
-The objective is to compare execution time, speedup, and computational throughput across different high-performance computing architectures.
+Objectives
 
-The Sequential C implementation provides the baseline against which relative speedup is calculated.
+Understand thread creation and execution using Pthreads.
 
----
+Understand parallel programming using OpenMP.
 
-# Project Objectives
+Implement parallel summation.
 
-- Implement matrix multiplication using multiple parallel-computing paradigms.
-- Compare sequential and parallel execution.
-- Analyze shared-memory parallelism using OpenMP.
-- Analyze distributed-memory parallelism using MPI.
-- Analyze GPU acceleration using CUDA.
-- Measure execution time and computational throughput.
-- Calculate relative speedup using Sequential C as the baseline.
-- Verify numerical correctness of the resulting matrix.
-- Present experimental results using graphs and terminal-output evidence.
+Demonstrate race conditions.
 
----
+Solve race conditions using mutexes and critical sections.
 
-# Problem Definition
+Understand barrier synchronization.
 
-Given two square matrices:
+Compare sequential, Pthreads, and OpenMP execution times.
 
-```text
-A[N][N]
-B[N][N]
-```
+Calculate and analyze parallel speedup.
 
-the objective is to compute:
+Tools and Technologies
 
-```text
-C = A × B
-```
+C Programming
 
-where:
+POSIX Threads (Pthreads)
 
-```text
-C[i][j] = Σ A[i][k] × B[k][j]
-```
+OpenMP
 
-For this experiment:
+GCC Compiler
 
-```text
-N = 4000
-Data type = float
-Matrix dimensions = 4000 × 4000
-```
+Git and GitHub
 
-The conventional matrix multiplication algorithm performs approximately:
+Linux / WSL environment
 
-```text
-2 × N³ = 128 billion floating-point operations
-```
+Project Structure
 
----
-
-# Architectural Implementations
-
-## 1. Sequential C
-
-The Sequential C implementation executes matrix multiplication using a single CPU execution stream.
-
-### Characteristics
-
-- Baseline implementation
-- Single CPU execution
-- No parallel framework
-- Reference for speedup calculations
-
-### Compilation
-
-```bash
-gcc -O2 src/sequential/matrix_mul.c -o sequential
-```
-
-### Execution
-
-```bash
-./sequential
-```
-
-### Verification
-
-```text
-C[0][0] = 4000.00
-```
-
-### Output
-
-> Add your actual screenshot as `images/sequential.png`.
-
-![Sequential Output](images/sequential.png)
-
----
-
-## 2. OpenMP
-
-The OpenMP implementation uses shared-memory parallelism with **8 CPU threads**.
-
-### Characteristics
-
-- Shared-memory architecture
-- 8 OpenMP threads
-- CPU-based parallel execution
-- `-fopenmp` enables OpenMP support
-
-### Compilation
-
-```bash
-gcc -O2 -fopenmp src/openmp/matrix_mul_openmp.c -o openmp
-```
-
-### Set Number of Threads
-
-```bash
-export OMP_NUM_THREADS=8
-```
-
-### Execution
-
-```bash
-./openmp
-```
-
-### Verification
-
-```text
-C[0][0] = 4000.00
-```
-
-### OpenMP Output
-
-> Add your actual screenshot as `images/openmp.png`.
-
-![OpenMP Output](images/openmp.png)
-
-### CPU Thread Utilization
-
-> Add your actual `htop` screenshot as `images/openmp_htop.png`.
-
-![OpenMP htop](images/openmp_htop.png)
-
----
-
-## 3. MPI
-
-The MPI implementation distributes the matrix multiplication workload across a **4-node distributed-memory environment**.
-
-### Characteristics
-
-- Distributed-memory architecture
-- 4 nodes / virtual machines
-- MPI process-based parallelism
-- Explicit communication between processes
-
-### Compilation
-
-```bash
-mpicc -O2 src/mpi/matrix_mul_mpi.c -o mpi_matrix_mul
-```
-
-### Run Using 4 MPI Processes
-
-```bash
-mpirun -np 4 ./mpi_matrix_mul
-```
-
-### Example Hostfile Execution
-
-```bash
-mpirun --hostfile hostfile -np 4 ./mpi_matrix_mul
-```
-
-### MPI Connectivity Verification
-
-> Add your actual MPI connectivity screenshot as `images/mpi_ping.png`.
-
-![MPI Ping](images/mpi_ping.png)
-
-### MPI Communication
-
-> Add your actual MPI send/receive screenshot as `images/mpi_send_recv.png`.
-
-![MPI Send Receive](images/mpi_send_recv.png)
-
-### MPI Result
-
-> Add your actual MPI result screenshot as `images/mpi_result.png`.
-
-![MPI Result](images/mpi_result.png)
-
-### Numerical Verification
-
-```text
-C[0][0] = 4000.00
-```
-
----
-
-## 4. CUDA
-
-The CUDA implementation executes matrix multiplication on an NVIDIA RTX GPU.
-
-### Characteristics
-
-- GPU-accelerated computation
-- NVIDIA CUDA programming model
-- GPU thread-level parallelism
-- `nvcc` CUDA compiler
-
-### Compilation
-
-```bash
-nvcc -O2 src/cuda/matrix_mul.cu -o cuda_matrix_mul
-```
-
-### Execution
-
-```bash
-./cuda_matrix_mul
-```
-
-### Verification
-
-```text
-C[0][0] = 4000.00
-```
-
----
-
-# Experimental Configuration
-
-| Parameter | Configuration |
-|---|---|
-| Matrix size | 4000 × 4000 |
-| Data type | Single-precision `float` |
-| Operation | Matrix multiplication |
-| Sequential | 1 CPU execution stream |
-| OpenMP | 8 CPU threads |
-| MPI | 4 nodes / VMs |
-| CUDA | NVIDIA RTX GPU |
-| Baseline | Sequential C |
-| Optimization | `-O2` |
-
----
-
-# Performance Benchmarks
-
-All reported measurements correspond to:
-
-```text
-N = 4000
-Precision = Single-precision float
-```
-
-| Implementation | Architecture | Execution Time (s) | Speedup | GFLOPS | Verification |
-|---|---|---:|---:|---:|---:|
-| Sequential C | Single CPU | 348.02 | 1.00× | 0.37 | 4000.00 |
-| OpenMP | 8 CPU Threads | 132.46 | 2.63× | 0.97 | 4000.00 |
-| MPI | 4 Nodes | 92.98 | 3.74× | 1.38 | 4000.00 |
-| CUDA | NVIDIA RTX GPU | 0.165 | 2109.18× | 775.74 | 4000.00 |
-
----
-
-# Performance Analysis
-
-## Execution Time
-
-Measured execution times:
-
-```text
-Sequential : 348.02 s
-OpenMP     : 132.46 s
-MPI        : 92.98 s
-CUDA       : 0.165 s
-```
-
-## Speedup
-
-Speedup is calculated relative to Sequential C:
-
-```text
-Speedup = T_sequential / T_parallel
-```
-
-Measured speedups:
-
-```text
-OpenMP : 2.63×
-MPI    : 3.74×
-CUDA   : 2109.18×
-```
-
-## Computational Throughput
-
-```text
-Sequential : 0.37 GFLOPS
-OpenMP     : 0.97 GFLOPS
-MPI        : 1.38 GFLOPS
-CUDA       : 775.74 GFLOPS
-```
-
----
-
-# Visualizations
-
-## Execution Time Comparison
-
-![Execution Time Chart](images/execution_time_chart.png)
-
-## Speedup Comparison
-
-![Speedup Chart](images/speedup_chart.png)
-
-## GFLOPS Throughput
-
-![GFLOPS Throughput](images/gflops_throughput_chart.png)
-
-## Matrix Scaling / Architecture Comparison
-
-The available benchmark data contains a measured point for **N = 4000**. Therefore, this chart visualizes the architecture comparison at the supplied matrix size rather than inventing measurements for other matrix sizes.
-
-![Matrix Scaling Chart](images/matrix_scaling_chart.png)
-
-## Overall Performance Comparison
-
-![Performance Comparison](images/performance_comparison_charts.png)
-
----
-
-# Source Code and Execution Commands
-
-## Sequential
-
-```bash
-gcc -O2 src/sequential/matrix_mul.c -o sequential
-./sequential
-```
-
-## OpenMP
-
-```bash
-gcc -O2 -fopenmp src/openmp/matrix_mul_openmp.c -o openmp
-
-export OMP_NUM_THREADS=8
-
-./openmp
-```
-
-## MPI
-
-```bash
-mpicc -O2 src/mpi/matrix_mul_mpi.c -o mpi_matrix_mul
-
-mpirun -np 4 ./mpi_matrix_mul
-```
-
-For a multi-machine configuration:
-
-```bash
-mpirun --hostfile hostfile -np 4 ./mpi_matrix_mul
-```
-
-## CUDA
-
-```bash
-nvcc -O2 src/cuda/matrix_mul.cu -o cuda_matrix_mul
-
-./cuda_matrix_mul
-```
-
----
-
-# Verification Results
-
-Every implementation was checked using the resulting matrix value:
-
-```text
-C[0][0] = 4000.00
-```
-
-### Sequential
-
-![Sequential Verification](images/sequential.png)
-
-### OpenMP
-
-![OpenMP Verification](images/openmp.png)
-
-### OpenMP CPU Utilization
-
-![OpenMP CPU Utilization](images/openmp_htop.png)
-
-### MPI Connectivity
-
-![MPI Ping](images/mpi_ping.png)
-
-### MPI Communication
-
-![MPI Send Receive](images/mpi_send_recv.png)
-
-### MPI Computation
-
-![MPI Result](images/mpi_result.png)
-
----
-
-# Architecture Comparison
-
-| Feature | Sequential C | OpenMP | MPI | CUDA |
-|---|---|---|---|---|
-| Memory Model | Single CPU memory | Shared memory | Distributed memory | GPU memory |
-| Parallelism | None | Thread-level | Process-level | GPU thread-level |
-| CPU Threads | 1 | 8 | Distributed | Host + GPU |
-| Nodes | 1 | 1 | 4 | 1 GPU system |
-| Compiler | GCC | GCC + OpenMP | MPICC | NVCC |
-| Execution | CPU | Multi-thread CPU | Multi-node CPU | NVIDIA GPU |
-| Execution Time | 348.02 s | 132.46 s | 92.98 s | 0.165 s |
-| Speedup | 1.00× | 2.63× | 3.74× | 2109.18× |
-| GFLOPS | 0.37 | 0.97 | 1.38 | 775.74 |
-
----
-
-# Repository Structure
-
-```text
-pgc/
-├── README.md
+PGC-2Multithreaded-Programming-Pthreads-OpenMP/
+│
+├── Part-A-Pthreads/
+│   ├── mutex.c
+│   ├── race.c
+│   ├── thread1.c
+│   ├── thread2.c
+│   └── thread_sum.c
+│
+├── Part-B-OpenMP/
+│   ├── omp1.c
+│   ├── omp_barrier.c
+│   ├── omp_critical.c
+│   ├── omp_race.c
+│   └── omp_sum.c
+│
+├── Part-C-Performance/
+│   ├── results/
+│   ├── omp_perf.c
+│   ├── pthread_perf.c
+│   └── sequential.c
+│
+├── screenshots/
+│   ├── OpenMP/
+│   ├── Performance/
+│   └── Pthreads/
+│
 ├── .gitignore
-│
-├── images/
-│   ├── execution_time_chart.png
-│   ├── speedup_chart.png
-│   ├── gflops_throughput_chart.png
-│   ├── matrix_scaling_chart.png
-│   ├── performance_comparison_charts.png
-│   ├── sequential.png
-│   ├── openmp.png
-│   ├── openmp_htop.png
-│   ├── mpi_ping.png
-│   ├── mpi_send_recv.png
-│   └── mpi_result.png
-│
-├── scripts/
-│   └── generate_charts.py
-│
-└── src/
-    ├── cuda/
-    │   └── matrix_mul.cu
-    ├── mpi/
-    │   └── matrix_mul_mpi.c
-    ├── openmp/
-    │   └── matrix_mul_openmp.c
-    └── sequential/
-        └── matrix_mul.c
-```
+└── README.md
 
----
+Part A — Pthreads
 
-# Reproducibility
+Pthreads, or POSIX Threads, is a standard C library interface used to create and manage multiple threads within a process.
 
-## Step 1 — Clone Repository
+1. Thread Creation
 
-```bash
-git clone <repository-url>
-cd pgc
-```
+The thread1.c program demonstrates the basic creation and execution of a thread.
 
-## Step 2 — Build Sequential Version
+Source: thread1.c
 
-```bash
-gcc -O2 src/sequential/matrix_mul.c -o sequential
-```
 
-## Step 3 — Build OpenMP Version
 
-```bash
-gcc -O2 -fopenmp src/openmp/matrix_mul_openmp.c -o openmp
-```
+2. Multiple Thread Creation
 
-## Step 4 — Build MPI Version
+The thread2.c program demonstrates the creation and execution of multiple threads.
 
-```bash
-mpicc -O2 src/mpi/matrix_mul_mpi.c -o mpi_matrix_mul
-```
+Source: thread2.c
 
-## Step 5 — Build CUDA Version
 
-```bash
-nvcc -O2 src/cuda/matrix_mul.cu -o cuda_matrix_mul
-```
 
-## Step 6 — Execute
+3. Parallel Sum
 
-```bash
-./sequential
+The thread_sum.c program demonstrates parallel computation of a sum using multiple Pthreads.
 
-export OMP_NUM_THREADS=8
-./openmp
+Source: thread_sum.c
 
-mpirun -np 4 ./mpi_matrix_mul
+Output
 
-./cuda_matrix_mul
-```
+Parallel Sum = 360
 
----
 
-# Academic Observations
 
-The experiment demonstrates four approaches to high-performance matrix computation:
+4. Race Condition
 
-1. **Sequential C** establishes the baseline performance.
-2. **OpenMP** exploits multiple CPU threads within a shared-memory system.
-3. **MPI** distributes computation across multiple processes and nodes.
-4. **CUDA** maps the highly parallel matrix multiplication workload to an NVIDIA GPU.
+A race condition occurs when multiple threads access and modify shared data at the same time without proper synchronization.
 
-The measurements show different performance characteristics for each execution model.
+Source: race.c
 
----
+Output
 
-# Conclusion
+Actual value = 297428
+Expected value = 400000
 
-This laboratory experiment provides a comparative evaluation of matrix multiplication across sequential, shared-memory, distributed-memory, and GPU-accelerated architectures.
+The difference between the actual and expected values demonstrates the effect of unsynchronized concurrent access.
 
-For the 4000 × 4000 single-precision workload:
 
-```text
-Sequential : 348.02 s
-OpenMP     : 132.46 s
-MPI        : 92.98 s
-CUDA       : 0.165 s
-```
 
-Measured throughput:
+5. Mutex Synchronization
 
-```text
-Sequential : 0.37 GFLOPS
-OpenMP     : 0.97 GFLOPS
-MPI        : 1.38 GFLOPS
-CUDA       : 775.74 GFLOPS
-```
+A mutex provides mutual exclusion so that only one thread can access a protected critical section at a time.
 
-All four implementations produced:
+Source: mutex.c
 
-```text
-C[0][0] = 4000.00
-```
+Output
 
-The repository therefore provides a reproducible comparison of sequential CPU execution, shared-memory CPU parallelism, distributed-memory parallelism, and GPU acceleration for a large matrix multiplication workload.
+Actual value = 400000
+Expected value = 400000
+
+The matching values show that mutex synchronization prevents the race condition.
+
+
+
+Part B — OpenMP
+
+OpenMP provides compiler directives and runtime functions for shared-memory parallel programming in C, C++, and Fortran.
+
+1. Basic OpenMP Threads
+
+The omp1.c program demonstrates basic thread creation and execution using OpenMP.
+
+Source: omp1.c
+
+
+
+2. Parallel Sum
+
+The omp_sum.c program demonstrates parallel summation using OpenMP.
+
+Source: omp_sum.c
+
+Output
+
+Parallel Sum = 360
+
+
+
+3. Race Condition
+
+The omp_race.c program demonstrates a race condition when multiple OpenMP threads update shared data without synchronization.
+
+Source: omp_race.c
+
+Output
+
+Actual value = 240710
+Expected value = 400000
+
+
+
+4. Critical Section
+
+The omp_critical.c program uses the OpenMP critical directive to protect a shared section of code.
+
+Source: omp_critical.c
+
+Output
+
+Actual value = 400000
+Expected value = 400000
+
+
+
+5. Barrier Synchronization
+
+The omp_barrier.c program demonstrates barrier synchronization. A barrier makes threads wait until all participating threads reach the synchronization point.
+
+Source: omp_barrier.c
+
+Output
+
+Stage 1 completed
+Stage 2 completed
+
+
+
+Part C — Performance Comparison
+
+This section compares the execution time of:
+
+Sequential execution
+
+Pthreads execution
+
+OpenMP execution
+
+The same computational task was used to compare the approaches.
+
+Sequential Execution
+
+Source: sequential.c
+
+Result
+
+Result = 499999999500.00
+Execution time = 5.815207 seconds
+
+
+
+Pthreads Performance
+
+Source: pthread_perf.c
+
+All executions produced:
+
+499999999500.00
+
+Threads
+
+Execution Time (seconds)
+
+1
+
+5.760953
+
+2
+
+8.462575
+
+4
+
+7.251828
+
+6
+
+4.956253
+
+16
+
+2.507743
+
+
+
+OpenMP Performance
+
+Source: omp_perf.c
+
+All executions produced:
+
+499999999500.00
+
+Threads
+
+Execution Time (seconds)
+
+1
+
+6.274961
+
+2
+
+2.805272
+
+4
+
+1.656242
+
+6
+
+1.784442
+
+14
+
+1.721868
+
+16
+
+1.979686
+
+
+
+Performance Graph
+
+The performance graph compares the execution times of sequential, Pthreads, and OpenMP implementations.
+
+
+
+Performance results: performance-comparison.md
+
+Pthreads vs OpenMP Comparison
+
+Feature
+
+Pthreads
+
+OpenMP
+
+Thread creation
+
+Explicit using pthread_create()
+
+Compiler directives such as #pragma omp parallel
+
+Thread management
+
+Programmer controlled
+
+Runtime managed
+
+Synchronization
+
+Mutexes and other pthread mechanisms
+
+Critical sections, barriers, locks, etc.
+
+Programming complexity
+
+More manual control
+
+Generally simpler for parallel loops
+
+Parallelism model
+
+Explicit threading
+
+Directive-based shared-memory parallelism
+
+Ease of use
+
+More detailed thread management
+
+Easier to implement many parallel tasks
+
+Speedup Comparison
+
+Speedup is calculated using:
+
+Speedup = Sequential Execution Time / Parallel Execution Time
+
+Sequential baseline:
+
+5.815207 seconds
+
+Pthreads Speedup
+
+Threads
+
+Execution Time (seconds)
+
+Speedup
+
+1
+
+5.760953
+
+1.01×
+
+2
+
+8.462575
+
+0.69×
+
+4
+
+7.251828
+
+0.80×
+
+6
+
+4.956253
+
+1.17×
+
+16
+
+2.507743
+
+2.32×
+
+OpenMP Speedup
+
+Threads
+
+Execution Time (seconds)
+
+Speedup
+
+1
+
+6.274961
+
+0.93×
+
+2
+
+2.805272
+
+2.07×
+
+4
+
+1.656242
+
+3.51×
+
+6
+
+1.784442
+
+3.26×
+
+14
+
+1.721868
+
+3.38×
+
+16
+
+1.979686
+
+2.94×
+
+Key Observations
+
+Pthreads provides explicit control over thread creation and synchronization.
+
+OpenMP simplifies shared-memory parallel programming through compiler directives.
+
+Race conditions can produce incorrect results when shared data is accessed concurrently without synchronization.
+
+Mutexes can protect shared data in Pthreads programs.
+
+OpenMP critical sections can protect shared operations.
+
+Barriers allow threads to synchronize at specific stages.
+
+Increasing the number of threads does not always reduce execution time because thread creation, scheduling, synchronization, and hardware limitations introduce overhead.
+
+The recorded performance results show different execution times for different thread counts.
+
+Compilation Summary
+
+Pthreads
+
+A typical Pthreads program can be compiled using:
+
+gcc program.c -o program -pthread
+
+Example:
+
+gcc thread1.c -o thread1 -pthread
+
+OpenMP
+
+An OpenMP program can be compiled using:
+
+gcc program.c -o program -fopenmp
+
+Example:
+
+gcc omp1.c -o omp1 -fopenmp
+
+Screenshots
+
+Pthreads
+
+Thread Creation
+
+
+
+Multiple Thread Creation
+
+
+
+Parallel Sum
+
+
+
+Race Condition
+
+
+
+Mutex
+
+
+
+OpenMP
+
+Basic OpenMP Threads
+
+
+
+Parallel Sum
+
+
+
+Race Condition
+
+
+
+Critical Section
+
+
+
+Barrier
+
+
+
+Performance
+
+Sequential
+
+
+
+Pthreads
+
+
+
+OpenMP
+
+
+
+Source Files
+
+Pthreads
+
+thread1.c
+
+thread2.c
+
+thread_sum.c
+
+race.c
+
+mutex.c
+
+OpenMP
+
+omp1.c
+
+omp_sum.c
+
+omp_race.c
+
+omp_critical.c
+
+omp_barrier.c
+
+Performance
+
+sequential.c
+
+pthread_perf.c
+
+omp_perf.c
+
+performance-comparison.md
+
+performance-graph.png
+
+Experiment Summary
+
+This experiment demonstrates the fundamentals of multithreaded programming using Pthreads and OpenMP. It covers thread creation, parallel computation, race conditions, synchronization, and performance measurement.
+
+The experiment also shows that parallel execution performance depends on the number of threads and the overhead associated with managing concurrent execution.
+
+Conclusion
+
+The project demonstrates how Pthreads and OpenMP can be used to implement shared-memory parallel programs in C. Race conditions were observed in unsynchronized programs and corrected using synchronization mechanisms such as mutexes and critical sections. Barrier synchronization was also demonstrated using OpenMP.
+
+Finally, sequential, Pthreads, and OpenMP implementations were compared using execution time and speedup measurements, providing practical insight into multithreaded performance.
